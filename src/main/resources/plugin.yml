@@ -1,0 +1,20 @@
+name: RPGDrop
+version: 1.0.4
+main: me.ruskaz.rpgdrop.Main
+api-version: 1.16
+softdepend: [ MythicMobs ]
+authors: [ RuSKaz ]
+description: Allows you to protect some part of people's loot!
+permissions:
+  rpgdrop.protection:
+    default: op
+    description: People with this permission will have their drops protected.
+  rpgdrop.clean:
+    default: op
+    description: People with this permission will have access to /rpgdrop clean command.
+
+commands:
+  rpgdrop:
+    permission: rpgdrop.clean
+    description: If some bugs happened and you get 3 lines in the description starting with "RPGDrop_" you can write /rpgdrop clean and clear these 3 lines.
+    usage: Command is used for cleaning bugged items using /rpgdrop clean.

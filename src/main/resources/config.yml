@@ -1,0 +1,29 @@
+mythicMobsSupport: false
+# Default: false
+# For mythic mobs support enabled set this to true.
+
+clearProtectionOnLeave: false
+# Default: false
+# Should the drop protection be cleared when items owner(the one who made them drop) leaves the server.
+# Set to true if you want protection to be cleared on this condition.
+
+clearProtectionOnDeath: false
+# Default: false
+# Should the drop protection be cleared on death of items' owner(the one who made them drop).
+# Set to true if you want protection to be cleared on this condition.
+
+preventFromHoppers: true
+# Default: true
+# Should the protected items go into hoppers.
+# Set to false if you want protected items to go into hoppers.
+
+mobsCanPickUp: false
+# Default: false
+# Should mobs pick up protected items.
+# Set to true if you want mobs to pick up protected items.
+
+timeToProtect: 10
+# Default: 10
+# Time to protect dropped loot(in seconds).
+# Set this value to 0 if you want protection to be endless.
+# DON'T PUT NEGATIVE NUMBERS AND DECIMAL FRACTIONS HERE.
