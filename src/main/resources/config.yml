@@ -27,3 +27,12 @@ timeToProtect: 10
 # Time to protect dropped loot(in seconds).
 # Set this value to 0 if you want protection to be endless.
 # DON'T PUT NEGATIVE NUMBERS AND DECIMAL FRACTIONS HERE.
+
+illegalArgumentsMessage: '&1&l[&e&lRPGDrop&1&l] &6&l>>> &f&lIllegal arguments.'
+# Message sent to command sender when there are more than 1 argument or the only argument is not "clear" or "reload".
+
+configReloadMessage: '&1&l[&e&lRPGDrop&1&l] &6&l>>> &f&lConfig reloaded.'
+# Message sent to command sender when they reload config.
+
+clearProtectionMessage: '&1&l[&e&lRPGDrop&1&l] &6&l>>> &f&lCleared protection from all items on server.'
+# Message sent to command sender when they use /rpgdrop clear.

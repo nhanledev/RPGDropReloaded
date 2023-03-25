@@ -11,7 +11,7 @@ import java.util.List;
 public class EventsMythic implements Listener {
 
     @EventHandler
-    public void PreventPickUpMythic (MythicMobDeathEvent e) {
+    public void addTagsMythic(MythicMobDeathEvent e) {
         try {
             if (e.getKiller() == null) return;
             if (e.getKiller() instanceof Player) {
@@ -19,7 +19,7 @@ public class EventsMythic implements Listener {
                 if (killer.hasPermission("rpgdrop.protection")) {
                     List<ItemStack> dropped = e.getDrops();
                     for (int i = 0; i < dropped.size(); i++) {
-                        Events.addLore(dropped.get(i), killer);
+                        ItemOperations.addLore(dropped.get(i), killer);
                     }
                 }
             }

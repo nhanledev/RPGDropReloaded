@@ -18,7 +18,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static io.papermc.paper.text.PaperComponents.plainSerializer;
@@ -26,38 +25,6 @@ import static io.papermc.paper.text.PaperComponents.plainSerializer;
 public class Events implements Listener {
 
     private final Plugin plugin = Main.getPlugin(Main.class);
-
-    public static List<Component> clearLore (List<Component> lore) {
-        if (lore.size() == 1) return null;
-        for (int i = 0; i < lore.size(); i++) {
-            String line = plainSerializer().serialize(lore.get(i));
-            if (line.contains("affected")) {
-                lore.remove(lore.get(i));
-            }
-        }
-        return lore;
-    }
-
-    public static List<Component> clearLore (List<Component> lore, Player p) {
-        if (lore.size() == 1) return null;
-        for (int i = 0; lore.size() > i; i++) {
-            String line = plainSerializer().serialize(lore.get(i));
-            if (line.contains("affected") && line.contains(String.valueOf(p.getUniqueId()))) {
-                lore.remove(lore.get(i));
-            }
-        }
-        return lore;
-    }
-
-    public static void addLore (ItemStack item, Player killer) {
-        ItemMeta meta = item.getItemMeta();
-        List<Component> lore;
-        if (meta.lore() == null) lore = new ArrayList<>();
-        else lore = meta.lore();
-        lore.add(Component.text("affected:" + killer.getUniqueId() + ":" + System.currentTimeMillis()));
-        meta.lore(lore);
-        item.setItemMeta(meta);
-    }
 
     @EventHandler
     public void addTags (EntityDeathEvent e) {
@@ -67,14 +34,14 @@ public class Events implements Listener {
             if (killer.hasPermission("rpgdrop.protection")) {
                 List<ItemStack> dropped = e.getDrops();
                 for (int i = 0; i < dropped.size(); i++) {
-                    addLore(dropped.get(i), killer);
+                    ItemOperations.addLore(dropped.get(i), killer);
                 }
             }
         } catch (NullPointerException ignored) {}
     }
 
     @EventHandler
-    public void PickUpEvent(EntityPickupItemEvent e) {
+    public void preventPickingUp (EntityPickupItemEvent e) {
         if (e.getEntity() instanceof Player) {
             Player player = (Player) e.getEntity();
             ItemStack item = e.getItem().getItemStack();
@@ -91,7 +58,7 @@ public class Events implements Listener {
                             return;
                         }
                         else {
-                            lore = clearLore(lore);
+                            lore = ItemOperations.clearLore(lore);
                             meta.lore(lore);
                             item.setItemMeta(meta);
                             return;
@@ -117,13 +84,13 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void ItemInChestlikeBlock (InventoryPickupItemEvent e) {
+    public void preventInHopperlikeBlocks (InventoryPickupItemEvent e) {
         ItemStack item = e.getItem().getItemStack();
         if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
             ItemMeta meta = item.getItemMeta();
             List<Component> lore = meta.lore();
             if (plugin.getConfig().getBoolean("preventFromHoppers")) {
-                lore = clearLore(lore);
+                lore = ItemOperations.clearLore(lore);
                 meta.lore(lore);
                 item.setItemMeta(meta);
             } else e.setCancelled(true);
@@ -131,7 +98,7 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void ClearTagsLeave (PlayerQuitEvent e) {
+    public void clearTagsOnLeave (PlayerQuitEvent e) {
         if (!plugin.getConfig().getBoolean("clearProtectionOnLeave")) return;
         for (World world : Bukkit.getServer().getWorlds()) {
             for (Entity entity : world.getEntities()) {
@@ -140,7 +107,7 @@ public class Events implements Listener {
                     if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
                         ItemMeta meta = item.getItemMeta();
                         List<Component> lore = meta.lore();
-                        lore = clearLore(lore, e.getPlayer());
+                        lore = ItemOperations.clearLore(lore, e.getPlayer());
                         meta.lore(lore);
                         item.setItemMeta(meta);
                     }
@@ -150,7 +117,7 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void ClearTagsDeath (PlayerDeathEvent e) {
+    public void clearTagsOnDeath (PlayerDeathEvent e) {
         if (!plugin.getConfig().getBoolean("clearProtectionOnLeave")) return;
         Player p = e.getEntity();
         for (World world : Bukkit.getServer().getWorlds()) {
@@ -160,7 +127,7 @@ public class Events implements Listener {
                     if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
                         ItemMeta meta = item.getItemMeta();
                         List<Component> lore = meta.lore();
-                        lore = clearLore(lore, p);
+                        lore = ItemOperations.clearLore(lore, p);
                         meta.lore(lore);
                         item.setItemMeta(meta);
                     }
