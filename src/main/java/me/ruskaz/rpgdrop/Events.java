@@ -118,7 +118,7 @@ public class Events implements Listener {
 
     @EventHandler
     public void clearTagsOnDeath (PlayerDeathEvent e) {
-        if (!plugin.getConfig().getBoolean("clearProtectionOnLeave")) return;
+        if (!plugin.getConfig().getBoolean("clearProtectionOnDeath")) return;
         Player p = e.getEntity();
         for (World world : Bukkit.getServer().getWorlds()) {
             for (Entity entity : world.getEntities()) {
