@@ -52,15 +52,16 @@ public class Events implements Listener {
                     Component comp = lore.get(i);
                     String line = plainSerializer().serialize(comp);
                     if (line.contains("affected")) {
+
                         String[] splitter = line.split(":");
-                        if (!splitter[1].equals(String.valueOf(player.getUniqueId()))) {
-                            e.setCancelled(true);
-                            return;
-                        }
-                        else {
+                        if (player.hasPermission("rpgdrop.bypass") || splitter[1].equals(String.valueOf(player.getUniqueId()))) {
                             lore = ItemOperations.clearLore(lore);
                             meta.lore(lore);
                             item.setItemMeta(meta);
+                            return;
+                        }
+                        else if (!splitter[1].equals(String.valueOf(player.getUniqueId()))) {
+                            e.setCancelled(true);
                             return;
                         }
                     }
