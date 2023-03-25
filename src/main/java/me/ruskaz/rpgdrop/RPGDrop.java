@@ -5,7 +5,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.logging.Level;
 
-public final class Main extends JavaPlugin {
+public final class RPGDrop extends JavaPlugin {
 
     @Override
     public void onEnable() {
@@ -14,7 +14,7 @@ public final class Main extends JavaPlugin {
         Bukkit.getPluginCommand("rpgdrop").setExecutor(new Command());
         if (this.getConfig().getBoolean("mythicMobsSupport")) {
             Bukkit.getPluginManager().registerEvents(new EventsMythic(), this);
-            Bukkit.getLogger().log(Level.INFO, "MythicMobs support turned on.");
+            Bukkit.getLogger().log(Level.INFO, "[RPGDrop] >>> MythicMobs support turned on.");
         }
         if (this.getConfig().getLong("timeToProtect") != 0) new TimeManager();
     }

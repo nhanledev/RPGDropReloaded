@@ -24,7 +24,7 @@ import static io.papermc.paper.text.PaperComponents.plainSerializer;
 
 public class Events implements Listener {
 
-    private final Plugin plugin = Main.getPlugin(Main.class);
+    private final Plugin plugin = RPGDrop.getPlugin(RPGDrop.class);
 
     @EventHandler
     public void addTags (EntityDeathEvent e) {

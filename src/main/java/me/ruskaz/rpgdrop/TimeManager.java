@@ -16,7 +16,7 @@ import static io.papermc.paper.text.PaperComponents.plainSerializer;
 public class TimeManager {
 
     private final BukkitScheduler scheduler = Bukkit.getScheduler();
-    private final Plugin plugin = Main.getPlugin(Main.class);
+    private final Plugin plugin = RPGDrop.getPlugin(RPGDrop.class);
 
     public TimeManager() {
         scheduler.runTaskTimer(plugin, () -> {

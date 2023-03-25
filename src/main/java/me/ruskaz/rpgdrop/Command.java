@@ -19,7 +19,7 @@ import static io.papermc.paper.text.PaperComponents.plainSerializer;
 
 public class Command implements CommandExecutor {
 
-    private final Plugin plugin = Main.getPlugin(Main.class);
+    private final Plugin plugin = RPGDrop.getPlugin(RPGDrop.class);
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, org.bukkit.command. Command command, String label, @NotNull String[] args) {
