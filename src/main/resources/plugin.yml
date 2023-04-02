@@ -1,5 +1,5 @@
 name: RPGDrop
-version: 1.0.8
+version: 1.0.8.1
 main: me.ruskaz.rpgdrop.RPGDrop
 api-version: 1.16
 softdepend: [ MythicMobs ]

@@ -31,9 +31,8 @@ public class TimeManager {
                             String l = plainSerializer().serialize(lore.get(i));
                             if (!l.contains("affected")) continue;
                             String[] splitted = l.split(":");
-                            String time = splitted[2];
-                            long recharge = Long.parseLong(time);
-                            if ((System.currentTimeMillis() - recharge) / 1000L >= period) {
+                            long time = Long.parseLong(splitted[2]);
+                            if ((System.currentTimeMillis() - time) / 1000L >= period) {
                                 lore = ItemOperations.clearLore(lore);
                                 meta.lore(lore);
                                 item.setItemMeta(meta);

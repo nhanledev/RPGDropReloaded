@@ -3,8 +3,6 @@ package me.ruskaz.rpgdrop;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -27,21 +25,21 @@ public class Events implements Listener {
     private final Plugin plugin = RPGDrop.getPlugin(RPGDrop.class);
 
     @EventHandler
-    public void addTags (EntityDeathEvent e) {
+    public void addTags(EntityDeathEvent e) {
         try {
             if (e.getEntity().getKiller() == null) return;
             Player killer = e.getEntity().getKiller();
             if (killer.hasPermission("rpgdrop.protection")) {
                 List<ItemStack> dropped = e.getDrops();
-                for (int i = 0; i < dropped.size(); i++) {
-                    ItemOperations.addLore(dropped.get(i), killer);
+                for (ItemStack itemStack : dropped) {
+                    ItemOperations.addLore(itemStack, killer);
                 }
             }
         } catch (NullPointerException ignored) {}
     }
 
     @EventHandler
-    public void preventPickingUp (EntityPickupItemEvent e) {
+    public void preventPickingUp(EntityPickupItemEvent e) {
         if (e.getEntity() instanceof Player) {
             Player player = (Player) e.getEntity();
             ItemStack item = e.getItem().getItemStack();
@@ -52,7 +50,6 @@ public class Events implements Listener {
                     Component comp = lore.get(i);
                     String line = plainSerializer().serialize(comp);
                     if (line.contains("affected")) {
-
                         String[] splitter = line.split(":");
                         if (player.hasPermission("rpgdrop.bypass") || splitter[1].equals(String.valueOf(player.getUniqueId()))) {
                             lore = ItemOperations.clearLore(lore);
@@ -85,12 +82,12 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void preventInHopperlikeBlocks (InventoryPickupItemEvent e) {
+    public void preventInHopperlikeBlocks(InventoryPickupItemEvent e) {
         ItemStack item = e.getItem().getItemStack();
         if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
             ItemMeta meta = item.getItemMeta();
             List<Component> lore = meta.lore();
-            if (plugin.getConfig().getBoolean("preventFromHoppers")) {
+            if (!plugin.getConfig().getBoolean("preventFromHoppers")) {
                 lore = ItemOperations.clearLore(lore);
                 meta.lore(lore);
                 item.setItemMeta(meta);
@@ -99,39 +96,35 @@ public class Events implements Listener {
     }
 
     @EventHandler
-    public void clearTagsOnLeave (PlayerQuitEvent e) {
+    public void clearTagsOnLeave(PlayerQuitEvent e) {
         if (!plugin.getConfig().getBoolean("clearProtectionOnLeave")) return;
         for (World world : Bukkit.getServer().getWorlds()) {
-            for (Entity entity : world.getEntities()) {
-                if (entity.getType().equals(EntityType.DROPPED_ITEM)) {
-                    ItemStack item = ((Item) entity).getItemStack();
-                    if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
-                        ItemMeta meta = item.getItemMeta();
-                        List<Component> lore = meta.lore();
-                        lore = ItemOperations.clearLore(lore, e.getPlayer());
-                        meta.lore(lore);
-                        item.setItemMeta(meta);
-                    }
+            for (Item entity : world.getEntitiesByClass(Item.class)) {
+                ItemStack item = entity.getItemStack();
+                if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
+                    ItemMeta meta = item.getItemMeta();
+                    List<Component> lore = meta.lore();
+                    lore = ItemOperations.clearLore(lore, e.getPlayer());
+                    meta.lore(lore);
+                    item.setItemMeta(meta);
                 }
             }
         }
     }
 
     @EventHandler
-    public void clearTagsOnDeath (PlayerDeathEvent e) {
+    public void clearTagsOnDeath(PlayerDeathEvent e) {
         if (!plugin.getConfig().getBoolean("clearProtectionOnDeath")) return;
         Player p = e.getEntity();
         for (World world : Bukkit.getServer().getWorlds()) {
-            for (Entity entity : world.getEntities()) {
-                if (entity.getType().equals(EntityType.DROPPED_ITEM)) {
-                    ItemStack item = ((Item) entity).getItemStack();
-                    if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
-                        ItemMeta meta = item.getItemMeta();
-                        List<Component> lore = meta.lore();
-                        lore = ItemOperations.clearLore(lore, p);
-                        meta.lore(lore);
-                        item.setItemMeta(meta);
-                    }
+            for (Item entity : world.getEntitiesByClass(Item.class)) {
+                ItemStack item = entity.getItemStack();
+                if (item.hasItemMeta() && item.getItemMeta().hasLore()) {
+                    ItemMeta meta = item.getItemMeta();
+                    List<Component> lore = meta.lore();
+                    lore = ItemOperations.clearLore(lore, p);
+                    meta.lore(lore);
+                    item.setItemMeta(meta);
                 }
             }
         }
