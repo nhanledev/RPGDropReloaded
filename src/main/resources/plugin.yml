@@ -1,10 +1,11 @@
 name: RPGDrop
-version: 1.0.8.1
+version: 1.1
 main: me.ruskaz.rpgdrop.RPGDrop
 api-version: 1.16
 softdepend: [ MythicMobs ]
-authors: [ RuSKaz ]
+author: RuSKaz
 description: Allows you to protect people's drop!
+load: POSTWORLD # needed for clearing protection
 permissions:
   rpgdrop.protection:
     default: op

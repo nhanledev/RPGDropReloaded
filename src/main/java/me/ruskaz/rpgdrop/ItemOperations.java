@@ -1,46 +1,24 @@
 package me.ruskaz.rpgdrop;
 
-import net.kyori.adventure.text.Component;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static io.papermc.paper.text.PaperComponents.plainSerializer;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class ItemOperations {
 
-    public static List<Component> clearLore (List<Component> lore) {
-        if (lore.size() == 1) return null;
-        for (int i = 0; i < lore.size(); i++) {
-            String line = plainSerializer().serialize(lore.get(i));
-            if (line.contains("affected")) {
-                lore.remove(lore.get(i));
-            }
+    public static boolean isItemInProtectionList(ItemStack item) {
+        if (RPGDrop.droppedItems.containsKey(item)) {
+            return true;
         }
-        return lore;
+        return RPGDrop.droppedItems.containsKey(item);
     }
-
-    public static List<Component> clearLore (List<Component> lore, Player p) {
-        if (lore.size() == 1) return null;
-        for (int i = 0; lore.size() > i; i++) {
-            String line = plainSerializer().serialize(lore.get(i));
-            if (line.contains("affected") && line.contains(String.valueOf(p.getUniqueId()))) {
-                lore.remove(lore.get(i));
+    public static void beginProtection(ItemStack item) {
+        long timeToProtect = Math.round(RPGDrop.config.getDouble("timeToProtect"));
+        if (timeToProtect <= 0) return;
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                RPGDrop.droppedItems.remove(item);
             }
-        }
-        return lore;
-    }
-
-    public static void addLore (ItemStack item, Player killer) {
-        ItemMeta meta = item.getItemMeta();
-        List<Component> lore;
-        if (meta.lore() == null) lore = new ArrayList<>();
-        else lore = meta.lore();
-        lore.add(Component.text("affected:" + killer.getUniqueId() + ":" + System.currentTimeMillis()));
-        meta.lore(lore);
-        item.setItemMeta(meta);
+        }.runTaskLater(RPGDrop.plugin, timeToProtect * 20L);
     }
 }

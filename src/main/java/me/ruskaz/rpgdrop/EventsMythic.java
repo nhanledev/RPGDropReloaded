@@ -18,8 +18,10 @@ public class EventsMythic implements Listener {
                 Player killer = (Player) e.getKiller();
                 if (killer.hasPermission("rpgdrop.protection")) {
                     List<ItemStack> dropped = e.getDrops();
-                    for (int i = 0; i < dropped.size(); i++) {
-                        ItemOperations.addLore(dropped.get(i), killer);
+                    for (ItemStack item : dropped) {
+                        item = item.asOne();
+                        RPGDrop.droppedItems.put(item, killer.getUniqueId() + ":" + System.currentTimeMillis());
+                        ItemOperations.beginProtection(item);
                     }
                 }
             }
