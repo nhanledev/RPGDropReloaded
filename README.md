@@ -8,4 +8,4 @@ You can set if protection getting disabled when player who dropped items dies or
 
 Feel free to share your ideas and found bugs!
 
-||Should be|| compatible with all versions 1.16 - 1.19.*.
+Should be compatible with all versions 1.16 - 1.20.
