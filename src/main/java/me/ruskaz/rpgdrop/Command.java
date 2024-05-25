@@ -28,11 +28,6 @@ public class Command implements CommandExecutor {
             RPGDrop.config = plugin.getConfig();
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getConfig().getString("configReloadMessage"))));
         }
-        else if (args[0].equalsIgnoreCase("kys")) {
-            for (ItemStack item : RPGDrop.droppedItems.keySet()) {
-                sender.sendMessage(item.getType().name());
-            }
-        }
         else {
             sender.sendMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getConfig().getString("illegalArgumentsMessage"))));
         }
