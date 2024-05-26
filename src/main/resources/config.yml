@@ -1,5 +1,21 @@
 mythicMobsSupport: false
 
+partiesSupport: false
+# Party members will share protection and will be able to pick other party members' protected loot.
+
+mmoCoreSupport:
+  enabled: false
+  partySupport: true
+  guildSupport: true
+  friendsSupport: true
+# Enables support for MMOCore parties, guilds and friends modules.
+# Allies will share protection and will be able to pick other allies' protected loot.
+
+simpleClansSupport:
+  enabled: false
+  alliedClansShareLoot: true
+# Clan allies will share protection and will be able to pick other allies' protected loot.
+
 clearProtectionOnLeave: false
 # Default: false
 # Should the drop protection be cleared when items owner(the one who made them drop) leaves the server.

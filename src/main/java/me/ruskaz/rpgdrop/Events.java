@@ -10,15 +10,13 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class Events implements Listener {
-
-    private final Plugin plugin = RPGDrop.getPlugin(RPGDrop.class);
 
     @EventHandler(ignoreCancelled = true)
     public void addTags(EntityDeathEvent e) {
@@ -28,7 +26,7 @@ public class Events implements Listener {
             List<ItemStack> dropped = e.getDrops();
             for (ItemStack item : dropped) {
                 item = item.asOne();
-                RPGDrop.droppedItems.put(item, killer.getUniqueId().toString());
+                RPGDrop.droppedItems.put(item, killer.getUniqueId());
                 ItemOperations.beginProtection(item);
             }
         }
@@ -38,16 +36,24 @@ public class Events implements Listener {
     public void preventPickingUp(EntityPickupItemEvent e) {
         ItemStack item = e.getItem().getItemStack().asOne();
         if (!ItemOperations.isItemInProtectionList(item)) return;
-        String playerUUID = RPGDrop.droppedItems.get(item);
+        UUID playerUUID = RPGDrop.droppedItems.get(item);
         if (e.getEntity() instanceof Player) {
             Player player = (Player) e.getEntity();
-            if (player.hasPermission("rpgdrop.bypass") || playerUUID.equals(player.getUniqueId().toString())) {
-                RPGDrop.droppedItems.remove(item);
-            } else {
-                e.setCancelled(true);
+            boolean canPickUp = player.hasPermission("rpgdrop.bypass");
+            canPickUp = canPickUp || playerUUID.equals(player.getUniqueId());
+            if (RPGDrop.mmoCoreSupport) {
+                canPickUp = canPickUp || MMOCoreTools.playersAreTogether(player, playerUUID);
             }
+            if (RPGDrop.simpleClansSupport) {
+                canPickUp = canPickUp || SimpleClansTools.isPlayerInClanWith(player, playerUUID);
+            }
+            if (RPGDrop.partiesSupport) {
+                canPickUp = canPickUp || PartiesTools.isPlayerInPartyWith(player, playerUUID);
+            }
+            if (canPickUp) RPGDrop.droppedItems.remove(item);
+            else e.setCancelled(true);
         } else {
-            if (!plugin.getConfig().getBoolean("mobsCanPickUp")) return;
+            if (!RPGDrop.config.getBoolean("mobsCanPickUp")) return;
             e.setCancelled(true);
         }
     }
@@ -56,28 +62,29 @@ public class Events implements Listener {
     public void preventItemsInHopper(InventoryPickupItemEvent e) {
         ItemStack item = e.getItem().getItemStack().asOne();
         if (!ItemOperations.isItemInProtectionList(item)) return;
-        if (plugin.getConfig().getBoolean("preventFromHoppers")) e.setCancelled(true);
+        if (RPGDrop.config.getBoolean("preventFromHoppers")) e.setCancelled(true);
     }
 
     @EventHandler
     public void clearTagsOnLeave(PlayerQuitEvent e) {
-        if (!plugin.getConfig().getBoolean("clearProtectionOnLeave")) return;
-        Set<Map.Entry<ItemStack, String>> protectedItems = RPGDrop.droppedItems.entrySet();
-        for (Map.Entry<ItemStack, String> protectionKeys : protectedItems) {
+        if (!RPGDrop.config.getBoolean("clearProtectionOnLeave")) return;
+        Set<Map.Entry<ItemStack, UUID>> protectedItems = RPGDrop.droppedItems.entrySet();
+        for (Map.Entry<ItemStack, UUID> protectionKeys : protectedItems) {
             ItemStack protectedItem = protectionKeys.getKey();
-            String protectionPlayerUUID = protectionKeys.getValue();
-            if (protectionPlayerUUID.equals(e.getPlayer().getUniqueId().toString())) RPGDrop.droppedItems.remove(protectedItem);
+            UUID protectionPlayerUUID = protectionKeys.getValue();
+            if (protectionPlayerUUID.equals(e.getPlayer().getUniqueId())) RPGDrop.droppedItems.remove(protectedItem);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void clearTagsOnDeath(PlayerDeathEvent e) {
-        if (!plugin.getConfig().getBoolean("clearProtectionOnDeath")) return;
-        Set<Map.Entry<ItemStack, String>> protectedItems = RPGDrop.droppedItems.entrySet();
-        for (Map.Entry<ItemStack, String> protectionKeys : protectedItems) {
+        if (!RPGDrop.config.getBoolean("clearProtectionOnDeath")) return;
+        Set<Map.Entry<ItemStack, UUID>> protectedItems = RPGDrop.droppedItems.entrySet();
+        for (Map.Entry<ItemStack, UUID> protectionKeys : protectedItems) {
             ItemStack protectedItem = protectionKeys.getKey();
-            String protectionPlayerUUID = protectionKeys.getValue();
-            if (protectionPlayerUUID.equals(e.getEntity().getUniqueId().toString())) RPGDrop.droppedItems.remove(protectedItem);
+            UUID protectionPlayerUUID = protectionKeys.getValue();
+            if (protectionPlayerUUID.equals(e.getEntity().getUniqueId())) RPGDrop.droppedItems.remove(protectedItem);
         }
     }
+
 }

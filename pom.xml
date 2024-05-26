@@ -6,7 +6,7 @@
 
     <groupId>me.ruskaz</groupId>
     <artifactId>rpgdrop</artifactId>
-    <version>0.1</version>
+    <version>1.2</version>
     <packaging>jar</packaging>
 
     <name>RPGDrop</name>
@@ -67,9 +67,28 @@
             <name>Lumine Releases</name>
             <url>https://mvn.lumine.io/repository/maven-public/</url>
         </repository>
+        <repository>
+            <id>phoenix</id>
+            <url>https://nexus.phoenixdevt.fr/repository/maven-public/</url>
+        </repository>
+        <repository>
+            <id>roinujnosde-repo</id>
+            <url>https://repo.roinujnosde.me/releases/</url>
+        </repository>
+        <repository>
+            <id>alessiodp-repo</id>
+            <url>https://repo.alessiodp.com/releases/</url>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>io.lumine</groupId>
+            <artifactId>MythicLib-dist</artifactId>
+            <version>1.6.2-SNAPSHOT</version>
+            <scope>provided</scope>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>com.destroystokyo.paper</groupId>
             <artifactId>paper-api</artifactId>
@@ -80,6 +99,24 @@
             <groupId>io.lumine</groupId>
             <artifactId>Mythic-Dist</artifactId>
             <version>5.6.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.Indyuce</groupId>
+            <artifactId>MMOCore-API</artifactId>
+            <version>1.12.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.sacredlabyrinth.phaed.simpleclans</groupId>
+            <artifactId>SimpleClans</artifactId>
+            <version>2.19.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alessiodp.parties</groupId>
+            <artifactId>parties-api</artifactId>
+            <version>3.2.15</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

@@ -19,7 +19,7 @@ public class EventsMythic implements Listener {
                 List<ItemStack> dropped = e.getDrops();
                 for (ItemStack item : dropped) {
                     item = item.asOne();
-                    RPGDrop.droppedItems.put(item, killer.getUniqueId().toString());
+                    RPGDrop.droppedItems.put(item, killer.getUniqueId());
                     ItemOperations.beginProtection(item);
                 }
             }
