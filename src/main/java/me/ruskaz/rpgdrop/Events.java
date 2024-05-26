@@ -22,42 +22,41 @@ public class Events implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void addTags(EntityDeathEvent e) {
-        try {
-            if (e.getEntity().getKiller() == null) return;
-            Player killer = e.getEntity().getKiller();
-            if (killer.hasPermission("rpgdrop.protection")) {
-                List<ItemStack> dropped = e.getDrops();
-                for (ItemStack item : dropped) {
-                    item = item.asOne();
-                    RPGDrop.droppedItems.put(item, killer.getUniqueId() + ":" + System.currentTimeMillis());
-                    ItemOperations.beginProtection(item);
-                }
+        if (e.getEntity().getKiller() == null) return;
+        Player killer = e.getEntity().getKiller();
+        if (killer.hasPermission("rpgdrop.protection")) {
+            List<ItemStack> dropped = e.getDrops();
+            for (ItemStack item : dropped) {
+                item = item.asOne();
+                RPGDrop.droppedItems.put(item, killer.getUniqueId().toString());
+                ItemOperations.beginProtection(item);
             }
-        } catch (NullPointerException ignored) {}
+        }
     }
 
     @EventHandler
     public void preventPickingUp(EntityPickupItemEvent e) {
         ItemStack item = e.getItem().getItemStack().asOne();
         if (!ItemOperations.isItemInProtectionList(item)) return;
-        String getter = RPGDrop.droppedItems.get(item);
+        String playerUUID = RPGDrop.droppedItems.get(item);
         if (e.getEntity() instanceof Player) {
             Player player = (Player) e.getEntity();
-            if (player.hasPermission("rpgdrop.bypass") || getter.split(":")[0].equals(player.getUniqueId().toString())) {
+            if (player.hasPermission("rpgdrop.bypass") || playerUUID.equals(player.getUniqueId().toString())) {
                 RPGDrop.droppedItems.remove(item);
             } else {
                 e.setCancelled(true);
             }
         } else {
             if (!plugin.getConfig().getBoolean("mobsCanPickUp")) return;
-            if (ItemOperations.isItemInProtectionList(item)) e.setCancelled(true);
+            e.setCancelled(true);
         }
     }
 
     @EventHandler
-    public void preventInHopperlikeBlocks(InventoryPickupItemEvent e) {
+    public void preventItemsInHopper(InventoryPickupItemEvent e) {
         ItemStack item = e.getItem().getItemStack().asOne();
-        if (ItemOperations.isItemInProtectionList(item) && plugin.getConfig().getBoolean("preventFromHoppers")) e.setCancelled(true);
+        if (!ItemOperations.isItemInProtectionList(item)) return;
+        if (plugin.getConfig().getBoolean("preventFromHoppers")) e.setCancelled(true);
     }
 
     @EventHandler
@@ -66,8 +65,7 @@ public class Events implements Listener {
         Set<Map.Entry<ItemStack, String>> protectedItems = RPGDrop.droppedItems.entrySet();
         for (Map.Entry<ItemStack, String> protectionKeys : protectedItems) {
             ItemStack protectedItem = protectionKeys.getKey();
-            String protectionPlayerUUID = protectionKeys.getValue().split(":")[0];
-
+            String protectionPlayerUUID = protectionKeys.getValue();
             if (protectionPlayerUUID.equals(e.getPlayer().getUniqueId().toString())) RPGDrop.droppedItems.remove(protectedItem);
         }
     }
@@ -78,8 +76,7 @@ public class Events implements Listener {
         Set<Map.Entry<ItemStack, String>> protectedItems = RPGDrop.droppedItems.entrySet();
         for (Map.Entry<ItemStack, String> protectionKeys : protectedItems) {
             ItemStack protectedItem = protectionKeys.getKey();
-            String protectionPlayerUUID = protectionKeys.getValue().split(":")[0];
-
+            String protectionPlayerUUID = protectionKeys.getValue();
             if (protectionPlayerUUID.equals(e.getEntity().getUniqueId().toString())) RPGDrop.droppedItems.remove(protectedItem);
         }
     }

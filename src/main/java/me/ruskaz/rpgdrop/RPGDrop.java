@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
+
 public final class RPGDrop extends JavaPlugin {
 
     public static Map<ItemStack, String> droppedItems;

@@ -10,21 +10,19 @@ import java.util.List;
 
 public class EventsMythic implements Listener {
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void addTagsMythic(MythicMobDeathEvent e) {
-        try {
-            if (e.getKiller() == null) return;
-            if (e.getKiller() instanceof Player) {
-                Player killer = (Player) e.getKiller();
-                if (killer.hasPermission("rpgdrop.protection")) {
-                    List<ItemStack> dropped = e.getDrops();
-                    for (ItemStack item : dropped) {
-                        item = item.asOne();
-                        RPGDrop.droppedItems.put(item, killer.getUniqueId() + ":" + System.currentTimeMillis());
-                        ItemOperations.beginProtection(item);
-                    }
+        if (e.getKiller() == null) return;
+        if (e.getKiller() instanceof Player) {
+            Player killer = (Player) e.getKiller();
+            if (killer.hasPermission("rpgdrop.protection")) {
+                List<ItemStack> dropped = e.getDrops();
+                for (ItemStack item : dropped) {
+                    item = item.asOne();
+                    RPGDrop.droppedItems.put(item, killer.getUniqueId().toString());
+                    ItemOperations.beginProtection(item);
                 }
             }
-        } catch (NullPointerException ignored) {}
+        }
     }
 }
