@@ -1,6 +1,8 @@
-package me.ruskaz.rpgdrop;
+package me.ruskaz.rpgdrop.dependencytools;
 
 import io.lumine.mythic.bukkit.events.MythicMobDeathEvent;
+import me.ruskaz.rpgdrop.ItemOperations;
+import me.ruskaz.rpgdrop.RPGDrop;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -18,8 +20,7 @@ public class EventsMythic implements Listener {
             if (killer.hasPermission("rpgdrop.protection")) {
                 List<ItemStack> dropped = e.getDrops();
                 for (ItemStack item : dropped) {
-                    item = item.asOne();
-                    RPGDrop.droppedItems.put(item, killer.getUniqueId());
+                    ItemOperations.modifyItem(item, killer);
                     ItemOperations.beginProtection(item);
                 }
             }

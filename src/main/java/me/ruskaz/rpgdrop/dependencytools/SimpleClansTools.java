@@ -1,5 +1,6 @@
-package me.ruskaz.rpgdrop;
+package me.ruskaz.rpgdrop.dependencytools;
 
+import me.ruskaz.rpgdrop.RPGDrop;
 import net.sacredlabyrinth.phaed.simpleclans.Clan;
 import net.sacredlabyrinth.phaed.simpleclans.ClanPlayer;
 import net.sacredlabyrinth.phaed.simpleclans.SimpleClans;
@@ -16,7 +17,7 @@ public class SimpleClansTools {
             ClanPlayer clanPlayer2 = SimpleClans.getInstance().getClanManager().getClanPlayer(p2);
             if (clanPlayer2 != null && clanPlayer2.getClan() != null) {
                 Clan secondPClan = clanPlayer2.getClan();
-                return RPGDrop.config.getBoolean("simpleClansSupport.alliedClansShareLoot") && secondPClan.getAllies().contains(clanPlayer.getClan().getName());
+                return RPGDrop.configManager.getSimpleClansAlliedClansShareLoot() && secondPClan.getAllies().contains(clanPlayer.getClan().getName());
             }
         }
         return false;

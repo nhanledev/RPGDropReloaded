@@ -1,4 +1,4 @@
-package me.ruskaz.rpgdrop;
+package me.ruskaz.rpgdrop.dependencytools;
 
 import com.alessiodp.parties.api.Parties;
 import org.bukkit.entity.Player;
