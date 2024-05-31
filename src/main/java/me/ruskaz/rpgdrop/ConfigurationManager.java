@@ -25,6 +25,8 @@ public class ConfigurationManager {
     private final boolean clearProtectionOnLeave;
     private final boolean clearProtectionOnDeath;
 
+    private final long timeToProtect;
+
     ConfigurationManager() {
         FileConfiguration config = RPGDrop.config;
         this.mythicMobsSupport = config.getBoolean("mythicMobsSupport") && Bukkit.getPluginManager().getPlugin("MythicMobs") != null;
@@ -43,6 +45,8 @@ public class ConfigurationManager {
         this.preventFromHoppers = config.getBoolean("preventFromHoppers");
         this.clearProtectionOnLeave = config.getBoolean("clearProtectionOnLeave");
         this.clearProtectionOnDeath = config.getBoolean("clearProtectionOnDeath");
+
+        this.timeToProtect = Math.round(config.getDouble("timeToProtect"));
     }
 
     public void checkForDependencies() {
@@ -112,5 +116,9 @@ public class ConfigurationManager {
 
     public boolean getClearProtectionOnDeath() {
         return clearProtectionOnDeath;
+    }
+
+    public long getTimeToProtect() {
+        return timeToProtect;
     }
 }

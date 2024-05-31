@@ -1,14 +1,11 @@
 package me.ruskaz.rpgdrop;
 
-import me.ruskaz.rpgdrop.dependencytools.EventsMythic;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Item;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
-
-import java.util.logging.Level;
 
 public final class RPGDrop extends JavaPlugin {
 

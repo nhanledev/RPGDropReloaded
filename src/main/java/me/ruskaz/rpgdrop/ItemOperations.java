@@ -1,5 +1,8 @@
 package me.ruskaz.rpgdrop;
 
+import me.ruskaz.rpgdrop.dependencytools.MMOCoreTools;
+import me.ruskaz.rpgdrop.dependencytools.PartiesTools;
+import me.ruskaz.rpgdrop.dependencytools.SimpleClansTools;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +20,7 @@ public class ItemOperations {
     }
 
     public static void beginProtection(ItemStack item) {
-        long timeToProtect = Math.round(RPGDrop.config.getDouble("timeToProtect"));
+        long timeToProtect = RPGDrop.configManager.getTimeToProtect();
         if (timeToProtect <= 0) return;
         Bukkit.getScheduler().runTaskLater(RPGDrop.plugin, () -> clearItem(item),  timeToProtect * 20L);
     }
@@ -71,5 +74,20 @@ public class ItemOperations {
             }
         }
         return index;
+    }
+
+    public static boolean canPlayerPickUpItem(Player player, UUID uuid) {
+        boolean canPickUp = player.hasPermission("rpgdrop.bypass");
+        canPickUp = canPickUp || uuid.equals(player.getUniqueId());
+        if (RPGDrop.configManager.getMMOCoreSupport()) {
+            canPickUp = canPickUp || MMOCoreTools.playersAreTogether(player, uuid);
+        }
+        if (RPGDrop.configManager.getSimpleClansSupport()) {
+            canPickUp = canPickUp || SimpleClansTools.isPlayerInClanWith(player, uuid);
+        }
+        if (RPGDrop.configManager.getPartiesSupport()) {
+            canPickUp = canPickUp || PartiesTools.isPlayerInPartyWith(player, uuid);
+        }
+        return canPickUp;
     }
 }

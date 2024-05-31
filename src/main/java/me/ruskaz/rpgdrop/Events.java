@@ -1,8 +1,5 @@
 package me.ruskaz.rpgdrop;
 
-import me.ruskaz.rpgdrop.dependencytools.MMOCoreTools;
-import me.ruskaz.rpgdrop.dependencytools.PartiesTools;
-import me.ruskaz.rpgdrop.dependencytools.SimpleClansTools;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Item;
@@ -44,18 +41,7 @@ public class Events implements Listener {
         UUID playerUUID = UUID.fromString(item.getItemMeta().getLore().get(findProtectionLineIndex(item)).split(":")[1]);
         if (e.getEntity() instanceof Player) {
             Player player = (Player) e.getEntity();
-            boolean canPickUp = player.hasPermission("rpgdrop.bypass");
-            canPickUp = canPickUp || playerUUID.equals(player.getUniqueId());
-            if (RPGDrop.configManager.getMMOCoreSupport()) {
-                canPickUp = canPickUp || MMOCoreTools.playersAreTogether(player, playerUUID);
-            }
-            if (RPGDrop.configManager.getSimpleClansSupport()) {
-                canPickUp = canPickUp || SimpleClansTools.isPlayerInClanWith(player, playerUUID);
-            }
-            if (RPGDrop.configManager.getPartiesSupport()) {
-                canPickUp = canPickUp || PartiesTools.isPlayerInPartyWith(player, playerUUID);
-            }
-            if (canPickUp) clearItem(item);
+            if (canPlayerPickUpItem(player, playerUUID)) clearItem(item);
             else e.setCancelled(true);
         } else {
             if (!RPGDrop.configManager.getMobCanPickUp()) return;
