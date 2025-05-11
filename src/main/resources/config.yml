@@ -43,3 +43,5 @@ illegalArgumentsMessage: '&1&l[&e&lRPGDrop&1&l] &6&l>>> &f&lIllegal arguments.'
 configReloadMessage: '&1&l[&e&lRPGDrop&1&l] &6&l>>> &f&lConfig reloaded.'
 
 clearProtectionMessage: '&1&l[&e&lRPGDrop&1&l] &6&l>>> &f&lCleared protection from all items on server.'
+
+canNotPickUp: '&1&l[&e&lRPGDrop&1&l] &6&l>>> &f&lCan not pick other loots.'

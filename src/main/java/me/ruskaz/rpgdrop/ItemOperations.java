@@ -3,91 +3,128 @@ package me.ruskaz.rpgdrop;
 import me.ruskaz.rpgdrop.dependencytools.MMOCoreTools;
 import me.ruskaz.rpgdrop.dependencytools.PartiesTools;
 import me.ruskaz.rpgdrop.dependencytools.SimpleClansTools;
-import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ItemOperations {
 
-    public static boolean isItemInProtectionList(ItemStack item) {
-        if (!item.hasItemMeta() || !item.getItemMeta().hasLore()) return false;
-        return findProtectionLineIndex(item) != -1;
+    private static final String PROTECTION_PREFIX = "RPGDrop:";
+    private static final Map<UUID, Long> lastWarningTime = new ConcurrentHashMap<>();
+
+    public static boolean isItemProtected(ItemStack item) {
+        if (item == null) return false;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null || !meta.hasLore()) return false;
+
+        return meta.getLore().stream().anyMatch(line -> line.startsWith(PROTECTION_PREFIX));
     }
 
-    public static void beginProtection(ItemStack item) {
-        long timeToProtect = RPGDrop.configManager.getTimeToProtect();
-        if (timeToProtect <= 0) return;
-        Bukkit.getScheduler().runTaskLater(RPGDrop.plugin, () -> clearItem(item),  timeToProtect * 20L);
+    public static void startProtectionTimer(ItemStack item) {
+//        long protectionSeconds = RPGDrop.configManager.getTimeToProtect();
+//        if (protectionSeconds <= 0 || itemEntity == null || !itemEntity.isValid()) return;
+//
+//        Bukkit.getScheduler().runTaskLater(RPGDrop.plugin, () -> {
+//            if (!itemEntity.isValid()) return;
+//            clearProtection(itemEntity.getItemStack());
+//        }, protectionSeconds * 20L);
     }
-    public static void modifyItem(ItemStack item, String player) {
+
+    public static void addProtection(ItemStack item, UUID ownerUUID) {
+        if (item == null || ownerUUID == null) return;
         ItemMeta meta = item.getItemMeta();
-        List<String> lore = meta.hasLore() ? meta.getLore() : new ArrayList<>();
-        lore.add("RPGDrop:" + player);
+        if (meta == null) return;
+
+        List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
+        lore.add(PROTECTION_PREFIX + ownerUUID);
         meta.setLore(lore);
         item.setItemMeta(meta);
     }
-    public static void modifyItem(ItemStack item, Player player) {
-        modifyItem(item, player.getUniqueId());
-    }
-    public static void modifyItem(ItemStack item, UUID player) {
-        modifyItem(item, player.toString());
-    }
 
-    public static void clearItem(ItemStack item) {
-        if (!item.hasItemMeta() || !item.getItemMeta().hasLore()) return;
-        ItemMeta meta = item.getItemMeta();
-        List<String> lore = meta.getLore();
-        if (lore.size() == 1) {
-            lore = null;
+    public static void addProtection(ItemStack item, Player player) {
+        if (player != null) {
+            addProtection(item, player.getUniqueId());
         }
-        else lore.removeIf(line -> line.contains("RPGDrop"));
-        meta.setLore(lore);
+    }
+
+    public static void clearProtection(ItemStack item) {
+        if (item == null) return;
+        ItemMeta meta = item.getItemMeta();
+        if (meta == null || !meta.hasLore()) return;
+
+        List<String> lore = new ArrayList<>(meta.getLore());
+        lore.removeIf(line -> line.startsWith(PROTECTION_PREFIX));
+        meta.setLore(lore.isEmpty() ? null : lore);
         item.setItemMeta(meta);
     }
 
-    public static void clearItem(ItemStack item, Player player) {
-        if (!item.hasItemMeta() || !item.getItemMeta().hasLore()) return;
+    public static void clearProtectionForPlayer(ItemStack item, Player player) {
+        if (item == null || player == null) return;
         ItemMeta meta = item.getItemMeta();
-        List<String> lore = meta.getLore();
-        if (lore.size() == 1) {
-            lore = null;
-        }
-        else lore.removeIf(line -> line.contains(player.getUniqueId().toString()));
-        meta.setLore(lore);
+        if (meta == null || !meta.hasLore()) return;
+
+        UUID uuid = player.getUniqueId();
+        List<String> lore = new ArrayList<>(meta.getLore());
+        lore.removeIf(line -> line.equals(PROTECTION_PREFIX + uuid));
+        meta.setLore(lore.isEmpty() ? null : lore);
         item.setItemMeta(meta);
     }
 
-    public static int findProtectionLineIndex(ItemStack item) {
-        if (!item.hasItemMeta() || !item.getItemMeta().hasLore()) return -1;
-        int index = -1;
+    public static UUID getProtectionOwner(ItemStack item) {
+        if (item == null) return null;
         ItemMeta meta = item.getItemMeta();
-        List<String> lore = meta.getLore();
-        for (int i = 0; lore.size() > i; i++) {
-            if (lore.get(i).contains("RPGDrop")) {
-                index = i;
-                break;
+        if (meta == null || !meta.hasLore()) return null;
+
+        for (String line : meta.getLore()) {
+            if (line.startsWith(PROTECTION_PREFIX)) {
+                try {
+                    return UUID.fromString(line.substring(PROTECTION_PREFIX.length()));
+                } catch (IllegalArgumentException ignored) {
+                }
             }
         }
-        return index;
+        return null;
     }
 
-    public static boolean canPlayerPickUpItem(Player player, UUID uuid) {
-        boolean canPickUp = player.hasPermission("rpgdrop.bypass");
-        canPickUp = canPickUp || uuid.equals(player.getUniqueId());
-        if (RPGDrop.configManager.getMMOCoreSupport()) {
-            canPickUp = canPickUp || MMOCoreTools.playersAreTogether(player, uuid);
+    public static boolean canPlayerPickupItem(Player player, UUID ownerUUID) {
+        if (player == null || ownerUUID == null) return true;
+
+        if (player.hasPermission("rpgdrop.bypass") || player.getUniqueId().equals(ownerUUID)) {
+            return true;
         }
-        if (RPGDrop.configManager.getSimpleClansSupport()) {
-            canPickUp = canPickUp || SimpleClansTools.isPlayerInClanWith(player, uuid);
+
+        if (RPGDrop.configManager.getMMOCoreSupport() &&
+                MMOCoreTools.playersAreTogether(player, ownerUUID)) {
+            return true;
         }
-        if (RPGDrop.configManager.getPartiesSupport()) {
-            canPickUp = canPickUp || PartiesTools.isPlayerInPartyWith(player, uuid);
+
+        if (RPGDrop.configManager.getSimpleClansSupport() &&
+                SimpleClansTools.isPlayerInClanWith(player, ownerUUID)) {
+            return true;
         }
-        return canPickUp;
+
+        if (RPGDrop.configManager.getPartiesSupport() &&
+                PartiesTools.isPlayerInPartyWith(player, ownerUUID)) {
+            return true;
+        }
+
+        // Blocked — send throttled message
+        sendThrottledPickupWarning(player);
+        return false;
+    }
+
+    private static void sendThrottledPickupWarning(Player player) {
+        long now = System.currentTimeMillis();
+        UUID uuid = player.getUniqueId();
+        long last = lastWarningTime.getOrDefault(uuid, 0L);
+
+        if (now - last >= 1000) {
+            lastWarningTime.put(uuid, now);
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(RPGDrop.plugin.getConfig().getString("canNotPickUp"))));
+        }
     }
 }

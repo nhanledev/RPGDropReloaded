@@ -8,24 +8,19 @@ import java.util.logging.Level;
 
 public class ConfigurationManager {
     private final boolean mythicMobsSupport;
-    private boolean mythicEventsRegistered = false;
-
     private final boolean mmoCoreSupport;
     private final boolean mmocorePartiesSupport;
     private final boolean mmocoreGuildsSupport;
     private final boolean mmocoreFriendsSupport;
-
     private final boolean simpleClansSupport;
     private final boolean simpleClansAlliedClansShareLoot;
-
     private final boolean partiesSupport;
-
     private final boolean mobCanPickUp;
     private final boolean preventFromHoppers;
     private final boolean clearProtectionOnLeave;
     private final boolean clearProtectionOnDeath;
-
     private final long timeToProtect;
+    private boolean mythicEventsRegistered = false;
 
     ConfigurationManager() {
         FileConfiguration config = RPGDrop.config;
@@ -72,9 +67,11 @@ public class ConfigurationManager {
     public boolean getMythicMobsSupport() {
         return mythicMobsSupport;
     }
+
     public boolean isMythicEventsRegistered() {
         return mythicEventsRegistered;
     }
+
     public boolean getMMOCoreSupport() {
         return mmoCoreSupport;
     }
@@ -94,6 +91,7 @@ public class ConfigurationManager {
     public boolean getSimpleClansSupport() {
         return simpleClansSupport;
     }
+
     public boolean getSimpleClansAlliedClansShareLoot() {
         return simpleClansAlliedClansShareLoot;
     }

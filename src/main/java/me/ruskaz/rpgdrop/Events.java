@@ -23,47 +23,57 @@ public class Events implements Listener {
 
     @EventHandler(ignoreCancelled = true)
     public void addTags(EntityDeathEvent e) {
-        if (e.getEntity().getKiller() == null) return;
         Player killer = e.getEntity().getKiller();
-        if (killer.hasPermission("rpgdrop.protection")) {
-            List<ItemStack> dropped = e.getDrops();
-            for (ItemStack item : dropped) {
-                modifyItem(item, killer);
-                beginProtection(item);
-            }
+        if (killer == null || !killer.hasPermission("rpgdrop.protection")) return;
+
+        List<ItemStack> dropped = e.getDrops();
+        for (ItemStack item : dropped) {
+            addProtection(item, killer);
+            startProtectionTimer(item);
         }
     }
 
     @EventHandler
     public void preventPickingUp(EntityPickupItemEvent e) {
         ItemStack item = e.getItem().getItemStack();
-        if (!isItemInProtectionList(item)) return;
-        UUID playerUUID = UUID.fromString(item.getItemMeta().getLore().get(findProtectionLineIndex(item)).split(":")[1]);
-        if (e.getEntity() instanceof Player) {
-            Player player = (Player) e.getEntity();
-            if (canPlayerPickUpItem(player, playerUUID)) clearItem(item);
-            else e.setCancelled(true);
+        if (!isItemProtected(item)) return;
+
+        UUID ownerUUID = getProtectionOwner(item);
+        if (ownerUUID == null) return;
+
+        if (e.getEntity() instanceof Player player) {
+            if (canPlayerPickupItem(player, ownerUUID)) {
+                clearProtection(item);
+            } else {
+                e.setCancelled(true); // message handled internally in canPlayerPickupItem
+            }
         } else {
-            if (!RPGDrop.configManager.getMobCanPickUp()) return;
-            e.setCancelled(true);
+            if (!RPGDrop.configManager.getMobCanPickUp()) {
+                e.setCancelled(true);
+            }
         }
     }
 
     @EventHandler
     public void preventItemsInHopper(InventoryPickupItemEvent e) {
         ItemStack item = e.getItem().getItemStack();
-        if (!isItemInProtectionList(item)) return;
-        if (RPGDrop.configManager.getPreventFromHoppers()) e.setCancelled(true);
+        if (!isItemProtected(item)) return;
+
+        if (RPGDrop.configManager.getPreventFromHoppers()) {
+            e.setCancelled(true);
+        }
     }
 
     @EventHandler
     public void clearTagsOnLeave(PlayerQuitEvent e) {
         if (!RPGDrop.configManager.getClearProtectionOnLeave()) return;
+
         for (World world : Bukkit.getWorlds()) {
             for (Item item : world.getEntitiesByClass(Item.class)) {
                 ItemStack droppedItem = item.getItemStack();
-                if (!ItemOperations.isItemInProtectionList(droppedItem)) continue;
-                clearItem(droppedItem, e.getPlayer());
+                if (!isItemProtected(droppedItem)) continue;
+
+                clearProtectionForPlayer(droppedItem, e.getPlayer());
             }
         }
     }
@@ -71,11 +81,13 @@ public class Events implements Listener {
     @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
     public void clearTagsOnDeath(PlayerDeathEvent e) {
         if (!RPGDrop.configManager.getClearProtectionOnDeath()) return;
+
         for (World world : Bukkit.getWorlds()) {
             for (Item item : world.getEntitiesByClass(Item.class)) {
                 ItemStack droppedItem = item.getItemStack();
-                if (!ItemOperations.isItemInProtectionList(droppedItem)) continue;
-                clearItem(droppedItem, e.getEntity());
+                if (!isItemProtected(droppedItem)) continue;
+
+                clearProtectionForPlayer(droppedItem, e.getEntity());
             }
         }
     }

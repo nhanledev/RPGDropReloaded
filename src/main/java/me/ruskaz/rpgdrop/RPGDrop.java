@@ -31,8 +31,8 @@ public final class RPGDrop extends JavaPlugin {
     public void onDisable() {
         for (World world : Bukkit.getWorlds()) {
             for (Item item : world.getEntitiesByClass(Item.class)) {
-                if (!ItemOperations.isItemInProtectionList(item.getItemStack())) continue;
-                ItemOperations.clearItem(item.getItemStack());
+                if (!ItemOperations.isItemProtected(item.getItemStack())) continue;
+                ItemOperations.clearProtection(item.getItemStack());
             }
         }
     }
