@@ -4,34 +4,30 @@ import me.ruskaz.rpgdrop.dependencytools.MMOCoreTools;
 import me.ruskaz.rpgdrop.dependencytools.PartiesTools;
 import me.ruskaz.rpgdrop.dependencytools.SimpleClansTools;
 import org.bukkit.ChatColor;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ItemOperations {
 
-    private static final String PROTECTION_PREFIX = "RPGDrop:";
+    private static final NamespacedKey PROTECTION_KEY = new NamespacedKey(RPGDrop.plugin, "rpgdrop_owner");
     private static final Map<UUID, Long> lastWarningTime = new ConcurrentHashMap<>();
 
     public static boolean isItemProtected(ItemStack item) {
         if (item == null) return false;
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasLore()) return false;
-
-        return meta.getLore().stream().anyMatch(line -> line.startsWith(PROTECTION_PREFIX));
+        return meta != null && meta.getPersistentDataContainer().has(PROTECTION_KEY, PersistentDataType.STRING);
     }
 
     public static void startProtectionTimer(ItemStack item) {
-//        long protectionSeconds = RPGDrop.configManager.getTimeToProtect();
-//        if (protectionSeconds <= 0 || itemEntity == null || !itemEntity.isValid()) return;
-//
-//        Bukkit.getScheduler().runTaskLater(RPGDrop.plugin, () -> {
-//            if (!itemEntity.isValid()) return;
-//            clearProtection(itemEntity.getItemStack());
-//        }, protectionSeconds * 20L);
+        // You can implement this again using an item entity if needed.
     }
 
     public static void addProtection(ItemStack item, UUID ownerUUID) {
@@ -39,9 +35,7 @@ public class ItemOperations {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return;
 
-        List<String> lore = meta.hasLore() ? new ArrayList<>(meta.getLore()) : new ArrayList<>();
-        lore.add(PROTECTION_PREFIX + ownerUUID);
-        meta.setLore(lore);
+        meta.getPersistentDataContainer().set(PROTECTION_KEY, PersistentDataType.STRING, ownerUUID.toString());
         item.setItemMeta(meta);
     }
 
@@ -54,40 +48,34 @@ public class ItemOperations {
     public static void clearProtection(ItemStack item) {
         if (item == null) return;
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasLore()) return;
+        if (meta == null) return;
 
-        List<String> lore = new ArrayList<>(meta.getLore());
-        lore.removeIf(line -> line.startsWith(PROTECTION_PREFIX));
-        meta.setLore(lore.isEmpty() ? null : lore);
+        meta.getPersistentDataContainer().remove(PROTECTION_KEY);
         item.setItemMeta(meta);
     }
 
     public static void clearProtectionForPlayer(ItemStack item, Player player) {
         if (item == null || player == null) return;
-        ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasLore()) return;
-
         UUID uuid = player.getUniqueId();
-        List<String> lore = new ArrayList<>(meta.getLore());
-        lore.removeIf(line -> line.equals(PROTECTION_PREFIX + uuid));
-        meta.setLore(lore.isEmpty() ? null : lore);
-        item.setItemMeta(meta);
+        UUID currentOwner = getProtectionOwner(item);
+        if (uuid.equals(currentOwner)) {
+            clearProtection(item);
+        }
     }
 
     public static UUID getProtectionOwner(ItemStack item) {
         if (item == null) return null;
         ItemMeta meta = item.getItemMeta();
-        if (meta == null || !meta.hasLore()) return null;
+        if (meta == null) return null;
 
-        for (String line : meta.getLore()) {
-            if (line.startsWith(PROTECTION_PREFIX)) {
-                try {
-                    return UUID.fromString(line.substring(PROTECTION_PREFIX.length()));
-                } catch (IllegalArgumentException ignored) {
-                }
-            }
+        String ownerString = meta.getPersistentDataContainer().get(PROTECTION_KEY, PersistentDataType.STRING);
+        if (ownerString == null) return null;
+
+        try {
+            return UUID.fromString(ownerString);
+        } catch (IllegalArgumentException ignored) {
+            return null;
         }
-        return null;
     }
 
     public static boolean canPlayerPickupItem(Player player, UUID ownerUUID) {
